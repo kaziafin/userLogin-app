@@ -1,32 +1,24 @@
+
 import axios from 'axios';
+const API_URL = 'https://www.mecallapi.com/api/';
 
-// Mock API endpoint
-const API_URL = 'https://api.example.com/users';
+const instance = axios.create({
+  baseURL: API_URL,
+  timeout: 10000, // Adjust timeout as needed
+});
 
-// Fetch users from the API
-export const fetchUsers = async () => {
-  try {
-    const response = await axios.get(API_URL);
-    return response.data;
-  } catch (error) {
-    throw error;
+// Interceptors for handling authorization header
+instance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-};
+);
 
-// Add a new user
-export const addUser = async (newUser) => {
-  try {
-    await axios.post(API_URL, newUser);
-  } catch (error) {
-    throw error;
-  }
-};
-
-// Delete a user
-export const deleteUser = async (userId) => {
-  try {
-    await axios.delete(`${API_URL}/${userId}`);
-  } catch (error) {
-    throw error;
-  }
-};
+export default instance;

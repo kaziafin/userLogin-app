@@ -1,16 +1,34 @@
 import React, { useState } from 'react'
 import '../style/login.css'
+import { useNavigate } from 'react-router-dom';
+import ApiEnd from './Service/AuthService';
 
 export default function Login() {
   const [username ,setuserName]=useState('');
   const [password ,setPassword]=useState('');
 
-  const navigate = Navigator;
+  const navigate = useNavigate();
+  
   const handleSubmit=(e)=>{
     e.preventDefault();
-    if(username==="admin" && password==="admin"){
-      navigate('/dashbored')
+    const response =Login({
+      username,
+      password
+    });
+    if ('accessToken' in response) {
+      console.log("Success", response.message, "success", {
+        buttons: false,
+        timer: 2000,
+      })
+      .then((value) => {
+        localStorage.setItem('accessToken', response['accessToken']);
+        localStorage.setItem('user', JSON.stringify(response['user']));
+        navigate('/dashbored')
+      });
+    } else {
+      alert("Failed", response.message, "error");
     }
+  
           
   }
  
@@ -21,10 +39,10 @@ export default function Login() {
     <h2 className='h2'>Sing In</h2>
       <label htmlFor="username">userName</label>
       <input
-        type="email"
+        type="text"
         id="username"
         value={username}
-        onChange={e=>(e.target.username)}
+       onChange={e=>{setuserName(e.target.value)}}
         required
         className='input'
       />
@@ -33,7 +51,7 @@ export default function Login() {
         type="password"
         id="password"
         value={password}
-        onChange={e=>(e.target.password)}
+        onChange={e=>{setPassword(e.target.value)}}
         required
         className='input'
       />
